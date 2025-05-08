@@ -10,7 +10,7 @@ const app = express();
 
 app.use(cors(
     { 
-        origin: ["http://localhost:8081", 'http://192.168.79.172:8081', "http://10.0.12.7:8081"], 
+        origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:4173", 'http://192.168.67.172:5173', 'http://192.168.174.172:4173',  "http://10.0.12.7:5173", "http://10.0.12.7:4173"], 
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         allowedHeaders: "Content-Type,Authorization",
         credentials: true
@@ -43,12 +43,12 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 
 app.use((error: CustomError, req: Request, res: Response, next: NextFunction) =>{
-    console.log('error')
     error.statusCode = error.statusCode || 500;
     error.status = error.status || 'fail',
     res.status(error.statusCode).json( {
         status: error.statusCode,
-        message: error.message
+        message: error.message, 
+        name: error.name
     })
 })
 

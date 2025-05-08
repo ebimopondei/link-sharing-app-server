@@ -15,11 +15,13 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
     "concurrently": "^9.1.2",
     "nodemon": "^3.1.10",
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@types/multer": "^1.4.12",
     "body-parser": "^2.2.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -27,6 +29,7 @@
     "express": "^5.1.0",
     "express-async-handler": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.2",
     "pg": "^8.15.6",
     "pg-hstore": "^2.3.4",
     "reflect-metadata": "^0.2.2",

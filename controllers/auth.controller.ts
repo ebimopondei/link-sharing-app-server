@@ -14,40 +14,23 @@ const signupController = async(req:Request, res:Response)=>{
     const emailHash = hashString(data.email);
     const response = await signupUser( { ...data, password_hash: emailHash } );
 
-
-
-    if( !response.success ) {
-        res.json(response)
-        return
-    };
-
-    token = jwt.sign(response, secret, {expiresIn: "1h" });
-    refreshToken = jwt.sign(response, refreshSecret, { expiresIn: "1d"});
+    token = jwt.sign(response.toJSON(), secret, {expiresIn: "1h" });
+    refreshToken = jwt.sign(response.toJSON(), refreshSecret, { expiresIn: "1d"});
     
-    res.json({success: true, data: { auth: {token, refreshToken}, user: response.data }, message: "User Created Successfully!"});
+    res.json({success: true, data: { auth: {token, refreshToken}, user: response }, message: "User Created Successfully!"});
 
 }
 
 async function loginController(req:Request, res:Response){
     const data = req.body || req.body.data;
-    const response = await loginUser(data);
-    const user = response?.data[0];
-    if( response.data.length<1 ){
-        res.status( 401 ).json( {success: false, data: null, message: "Login Credentials are wrong!"} );
-        return
-    } 
+    const user = await loginUser(data); 
 
-    token = jwt.sign(response.data[0], secret, {expiresIn: "1h" });
-    refreshToken = jwt.sign(response.data[0], refreshSecret, { expiresIn: "1d"});
+    token = jwt.sign(user.toJSON(), secret, {expiresIn: "1h" });
+    refreshToken = jwt.sign(user.toJSON(), refreshSecret, { expiresIn: "1d"});
     
-    res.json({success: true, data: { auth: { token, refreshToken }, user }, message: "Login Successfully!"});
+    res.json({success: true, data: { token, refreshToken }, message: "Login Successfully!"});
 }
 
-// const verifyEmailController = async(req:Request, res:Response)=>{
-//     const { hash } = req.body || req.body.data;
-//     const response = await verifyEmail( hash )
-//     res.json(response)
-// }
 
 const refreshTokenController = async (req:Request, res:Response) =>{
     const cookies = req.cookies;
