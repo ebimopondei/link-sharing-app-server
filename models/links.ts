@@ -1,26 +1,18 @@
 import 'reflect-metadata';
-import { Model, DataType, Table, Column, ForeignKey, BelongsTo } from 'sequelize-typescript';
-import User from './user';
+import { Model, DataType, Table, Column } from 'sequelize-typescript';
 
 @Table({
-    tableName: 'user-links',
+    tableName: 'links',
     timestamps: true
 })
 
-class UserLinks extends Model {
+class Links extends Model {
     @Column({
         type: DataType.UUID,
         defaultValue: DataType.UUIDV4,
         primaryKey: true
     })
     id!: string;
-
-    @ForeignKey(() => User)
-    @Column({
-      type: DataType.UUID,
-      allowNull: false,
-    })
-    user_id!: number;
 
     @Column({
         type: DataType.STRING,
@@ -30,19 +22,11 @@ class UserLinks extends Model {
     platform!: string;
 
     @Column({
-        type: DataType.FLOAT,
-    })
-    order?: number;
-
-    @Column({
-        type: DataType.STRING,
+        type: DataType.TEXT,
         allowNull: false,
         unique: false
     })
-    url!: string;
-
-    @BelongsTo(() => User)
-    user!: User;
+    icon!: string;
 }
 
-export default UserLinks
+export default Links

@@ -1,8 +1,8 @@
 import express from 'express'
-import { handleAddNewLinks, handleGetUserLinks } from '../../../controllers/user/user.links.controller';
+import * as controller from '../../../controllers/';
 const router = express.Router();
 
-router.post('/', handleAddNewLinks);
-router.get('/', handleGetUserLinks);
+router.post('/', controller.handleAddNewLinks);
+router.get('/', controller.handleGetUserLinks);
 
 export default router;

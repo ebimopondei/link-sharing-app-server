@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { loginUser, signupUser } from "../database/sql";
-import { hashString } from "../helpers";
+import { loginUser, signupUser } from "../../database/sql";
+import { hashString } from "../../helpers";
 
 const jwt = require('jsonwebtoken');
-import { SECRET as secret, REFRESHSECRET as refreshSecret } from '../config/secret'
+import { SECRET as secret, REFRESHSECRET as refreshSecret } from '../../config/secret'
 
 let token;
 let refreshToken;

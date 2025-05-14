@@ -1,19 +1,25 @@
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import User from '../models/user';
-import UserLinks from '../models/links';
+import UserLinks from '../models/user-links';
 import Verification from '../models/verification';
 import '../database/setup';
 
 import path from 'path';
 import { DatabaseError } from '../utils/DatabaseError';
+import Links from '../models/links';
 const fs = require( 'fs')
 
 
 interface LinkInput {
     id?: string;
-    platform: string;
+    platform_id: string;
     order: string;
     url: string;
+  }
+
+  interface Link {
+    icon: string;
+    platform: string;
   }
 
 
@@ -105,9 +111,16 @@ const updateUserProfile = async(userId:string, user:User, avatar_url:string ='')
 }
 
 const getUserLinks = async (userId:string) => {
-    const response = await UserLinks.findAll( { where: { user_id: userId }});
-
+    const response = await UserLinks.findAll( { where: { user_id: userId }, include: [ Links ]});
+    
     return response
+
+}
+
+async function getAllPlatforms(){
+  const response = await Links.findAll();
+  
+  return response
 
 }
 
@@ -161,30 +174,58 @@ const addNewLink = async ( userId: string, links: { id:string, platform:string, 
 
 async function addNewLinks(userId: string, links: LinkInput[]){
 
-      const existingLinks = await UserLinks.findAll({ where: { user_id: userId }, attributes: ['id'] });
-      const existingIds = existingLinks.map(link => link.id);
-      const incomingIds = links.map(link => link.id).filter(Boolean);
-      const idsToDelete = existingIds.filter(id => !incomingIds.includes(id));
-      if (idsToDelete.length > 0) {
+
+    const existingLinks = await UserLinks.findAll({ where: { user_id: userId }, attributes: ['id'] });
+    const existingIds = existingLinks.map(link => link.id);
+    const incomingIds = links.map(link => link.id).filter(Boolean);
+    const idsToDelete = existingIds.filter(id => !incomingIds.includes(id));
+    if (idsToDelete.length > 0) {
         await UserLinks.destroy({ where: { user_id: userId, id: { [Op.in]: idsToDelete } } });
       }
-  
+      
       for (const link of links) {
-        const { id, platform, url, order } = link;
-  
+        const { id, platform_id, url, order } = link;
+        
         if (id) {
-          await UserLinks.update( { platform, url, order }, { where: { id, user_id: userId } });
+          await UserLinks.update( { platform_id, url, order }, { where: { id, user_id: userId } });
         } else {
-          await UserLinks.create({ user_id: userId, platform, url, order });
+          await UserLinks.create({ user_id: userId, platform_id, url, order });
         }
       }
-  
+      
       return;
   };
+
+  async function addNewPlatform( { platform, icon, }: Link){
+
+    try{
+      const response = await Links.create( { 
+      platform, icon
+    })}catch (error:any){
+      console.error('Error during link creation:', error.name);
+
+  if (error.name === 'SequelizeUniqueConstraintError' && error.errors && error.errors.length > 0) {
+    // @ts-expect-error
+    const validationMessage = error.errors.map(err => err.message).join(', ');
+    
+    throw new Error(`${validationMessage}`);
+  } else {
+    // For other types of errors, re-throw a generic error
+    console.error('An unexpected error occurred during link creation:', error.name);
+    throw new Error(error.message);
+  }
+    }
+    return;
+};
 
 async function getUserProfileDetails (userId:string) {
     const response = User.findOne( { where: { id: userId}})
     return response
+}
+
+async function getUserPublicProfile (username:string) {
+  const response = User.findOne( { where: { username }, attributes: { exclude: ['password']}, include: [{model:UserLinks, include: [Links], required: true}]})
+  return response;
 }
 
 
@@ -195,5 +236,8 @@ export {
     updateUserProfile,
     getUserLinks,
     addNewLinks,
-    getUserProfileDetails
+    getUserProfileDetails,
+    addNewPlatform,
+    getAllPlatforms,
+    getUserPublicProfile
 }

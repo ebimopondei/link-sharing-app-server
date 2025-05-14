@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import { Model, DataType, Table, Column, Default } from 'sequelize-typescript';
+import { Model, DataType, Table, Column, Default, HasMany } from 'sequelize-typescript';
+import UserLinks from './user-links';
 
 export enum AccountType {
     INDIVIDUAL = 'individual',
@@ -111,6 +112,9 @@ class User extends Model {
         type: DataType.BOOLEAN,
     })
     is_verified?: boolean;
+
+    @HasMany(() => UserLinks)
+    links!: UserLinks[]
 
 }
 
