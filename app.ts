@@ -26,7 +26,7 @@ const app = express();
 
 app.use(cors(
     { 
-        origin: ["http://localhost:5173", "https://link-sharing-app-cyan.vercel.app", "http://localhost:5174", "http://localhost:3000", "http://localhost:4173", 'http://192.168.0.102:5173', 'http://192.168.174.172:4173',  "http://10.0.12.7:5173", "http://10.0.12.7:4173"], 
+        origin: ["http://localhost:5173", "https://link-sharing-app-react.vercel.app", "http://localhost:5174", "http://localhost:3000", "http://localhost:4173", 'http://192.168.0.102:5173', 'http://192.168.174.172:4173',  "http://10.0.12.7:5173", "http://10.0.12.7:4173"], 
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         allowedHeaders: "Content-Type,Authorization",
         credentials: true
