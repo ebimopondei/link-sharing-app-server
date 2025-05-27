@@ -30,11 +30,9 @@ const signupUser = async(user:User)=>{
         password_hash
     } = user;
 
-    let toString, res
+    let res
 
-    res = await User.findAll( {where: { email } } );
-    
-    if(res.length > 0) throw new DatabaseError('Email exists in database', 409)
+
     
     res = await User.create( {
         email,

@@ -7,9 +7,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 
-const {
-    SequelizeError,
-    SequelizeDatabaseError,
+import {
+    BaseError,
     UniqueConstraintError,
     ForeignKeyConstraintError,
     DatabaseError,
@@ -19,7 +18,7 @@ const {
     HostNotReachableError,
     AssociationError,
     InstanceError,
-  } = require('sequelize');
+  } from 'sequelize';
 
 
 const app = express();
@@ -104,35 +103,41 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/', Routing )
 
 app.use((error:CustomError, req:Request, res:Response, next:NextFunction) => {
-    console.error('Sequelize Error Handler:', error);
   
-    if (error instanceof SequelizeDatabaseError) {
+    if (error instanceof DatabaseError) {
       const validationMessages = error?.errors.map((e) => e.message).join(', ');
-      throw new Error(validationMessages)
-       res.status(400).json({ error: `Data validation failed: ${validationMessages}` });
+      res.status(400).json({ status: 'fail', statusCode: 503,  message: `Data validation failed: ${validationMessages}` });
+      return;
     } else if (error instanceof UniqueConstraintError) {
       const uniqueFields = error.errors.map((e) => e.path).join(', ');
-       res.status(409).json({ error: `The provided value for ${uniqueFields} already exists.` });
+      res.status(409).json({ status: 'fail', statusCode: 503,  message: `The provided value for ${uniqueFields} already exists.` });
+      return; 
     } else if (error instanceof ForeignKeyConstraintError) {
-       res.status(409).json({ error: 'Failed due to a foreign key constraint violation.' });
+      res.status(409).json({ status: 'fail', statusCode: 503,  message: 'Failed due to a foreign key constraint violation.' });
+      return; 
     } else if (error instanceof DatabaseError) {
       console.error('Sequelize Database Error:', error.message, error.sql);
       if (error.parent) {
         console.error('Underlying Database Error:', error.parent);
       }
-       res.status(500).json({ error: 'A database error occurred. Please try again later.' });
+      res.status(500).json({ status: 'fail', statusCode: 503,  message: 'A database error occurred. Please try again later.' });
+      return;
     } else if (error instanceof TimeoutError) {
-       res.status(408).json({ error: 'The database operation timed out.' });
+      res.status(408).json({ status: 'fail', statusCode: 503,  message: 'The database operation timed out.' });
+      return; 
     } else if (
       error instanceof ConnectionError ||
       error instanceof HostNotFoundError ||
       error instanceof HostNotReachableError
     ) {
-       res.status(503).json({ error: 'Could not connect to the database. Please check your connection.' });
+      res.status(503).json({ status: 'fail', statusCode: 503,  message: 'Could not connect to the database. Please check your connection.' });
+      return;
     } else if (error instanceof AssociationError || error instanceof InstanceError) {
-       res.status(500).json({ error: 'An error occurred with the data or its relationships.' });
-    } else if (error instanceof SequelizeError) {
-       res.status(500).json({ error: 'An unexpected database error occurred.' });
+      res.status(500).json({ status: 'fail', statusCode: 500,  message: 'An error occurred with the data or its relationships.' });
+      return;
+    } else if (error instanceof BaseError) {
+      res.status(500).json({ status: 'fail', statusCode: 500,  message: 'An unexpected database error occurred.' }); 
+      return;
     }
   
     // If the error is not a Sequelize error, pass it on to the next error handler
@@ -150,7 +155,8 @@ app.use((error: CustomError, req: Request, res: Response, next: NextFunction) =>
     error.statusCode = error.statusCode || 500;
     error.status = error.status || 'fail',
     res.status(error.statusCode).json( {
-        status: error.statusCode,
+        statusCode: error.statusCode,
+        status: error.status,
         message: error.message, 
         name: error.name
     })

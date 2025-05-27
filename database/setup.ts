@@ -13,6 +13,7 @@ import { dbConn } from '../config/postgres-db';
 // });
 
 
+
 const sequelize = new Sequelize(
     `${dbConn}`,
     {
@@ -28,8 +29,8 @@ const sequelize = new Sequelize(
     }
   );
 
-sequelize.sync( { alter: true});
-// sequelize.sync();
+// sequelize.sync( { alter: true});
+sequelize.sync();
 
 try {
     const start = async () =>{
