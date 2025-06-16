@@ -1,16 +1,18 @@
 import { Sequelize } from 'sequelize-typescript';
 import path from 'path';
 import { dbConn } from '../config/postgres-db';
-const sequelize = new Sequelize({
-  database: 'link-sharing-app',
-  username: 'admin',
-  password: 'qwerty',
-  host: 'localhost',
-  port: 5432,
-  dialect: 'postgres',
-  models: [path.dirname(__dirname) + '/models'],
-  logging: false,
-});
+const sequelize = new Sequelize(
+    {
+        database: process.env.DB,
+        username: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        host: process.env.DB_HOST,
+        port: 5432,
+        dialect: 'postgres',
+        models: [path.dirname(__dirname) + '/models'],
+        logging: false,
+    }
+);
 
 
 
@@ -29,8 +31,8 @@ const sequelize = new Sequelize({
 //     }
 //   );
 
-sequelize.sync( { alter: true});
-// sequelize.sync();
+// sequelize.sync( { alter: true});
+sequelize.sync();
 
 try {
     const start = async () =>{

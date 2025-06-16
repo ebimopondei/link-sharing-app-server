@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-const SECRET = process.env.accessTokenSecret;
-const REFRESHSECRET = process.env.refreshTokenSecret;
+const SECRET = process.env.ACCESSTOKENSECRET;
+const REFRESHSECRET = process.env.REFRESHTOKENSECRET;
 
 
 export {
