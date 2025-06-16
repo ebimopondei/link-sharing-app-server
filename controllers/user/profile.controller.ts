@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
 import { getUserProfileDetails, updateUserProfile } from "../../database/sql";
+import { cloudinary } from "../../config/cloudinary";
+
+const fs = require( 'fs')
+
 
 async function handleGetUserProfile (req:Request, res:Response){
     try {
@@ -21,8 +25,31 @@ async function handleUpdateUserProfile (req:Request, res:Response) {
         //@ts-expect-error
         const user = req.parsedToken;
         const data = req.body || req.body.data;
-        const avatar = req.file
-        const response = await updateUserProfile(user.id, data, avatar?.filename)
+        const avatarPath = req?.file?.path
+
+        if(!avatarPath) {
+            res.status(400).json( { error: 'No file uploaded'})
+            return 
+        }
+
+        console.log(avatarPath)
+
+        const result = await cloudinary.uploader.upload(avatarPath)
+        // console.log(result)
+        const url = cloudinary.url(result.public_id)
+        console.log(url)
+
+        const response = await updateUserProfile(user.id, data, result)
+
+        if (fs.existsSync(avatarPath)) {
+            fs.unlinkSync(avatarPath);
+            console.log('deleted')
+        } else {
+
+            console.log('not found')
+
+        }
+        
         res.json(response)
     
     }catch(err:any) {

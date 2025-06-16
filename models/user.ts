@@ -55,8 +55,12 @@ class User extends Model {
         allowNull: true,
     })
     avatar_url?: string;
-
     
+    @Column({
+        type: DataType.STRING,
+        allowNull: true,
+    })
+    avatar_public_id?: string;
 
     @Column({
         type: DataType.STRING,

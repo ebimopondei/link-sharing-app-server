@@ -7,6 +7,8 @@ import '../database/setup';
 import path from 'path';
 import { DatabaseError } from '../utils/DatabaseError';
 import Links from '../models/links';
+import { cloudinary } from '../config/cloudinary';
+import { UploadApiResponse } from 'cloudinary';
 const fs = require( 'fs')
 
 
@@ -55,7 +57,7 @@ const loginUser = async({ email, password } : User) => {
     return res;
 }
 
-const updateUserProfile = async(userId:string, user:User, avatar_url:string ='')=>{
+const updateUserProfile = async(userId:string, user:User, avatar:Partial<UploadApiResponse>)=>{
     const {
         username,
         firstname,
@@ -79,21 +81,13 @@ const updateUserProfile = async(userId:string, user:User, avatar_url:string ='')
         };
       }
 
-      if (avatar_url && existingUser.avatar_url && existingUser.avatar_url !== avatar_url) {
-    
-        const filePath = path.join(__dirname, `../uploads/${existingUser.avatar_url}`);
+      if (existingUser.avatar_public_id) {
 
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-            console.log('deleted')
-        } else {
-
-            console.log('not found')
-
-        }
+        cloudinary.uploader.destroy(existingUser.avatar_public_id)
+        
       }
       
-      const data = await User.update({ username, firstname, lastname, email, address, country, phone, dob, avatar_url }, { where: { id: userId } } );
+      const data = await User.update({ username, firstname, lastname, email, address, country, phone, dob, avatar_url: avatar.url, avatar_public_id: avatar.public_id }, { where: { id: userId } } );
       
       return {
           success: true,
@@ -101,8 +95,8 @@ const updateUserProfile = async(userId:string, user:User, avatar_url:string ='')
           message: "User Updated successfully"
       }   
 
-  } catch (error) {
-      console.error('Error deleting avatar:', error);
+  } catch (error:any) {
+      console.error('Error:', error.message);
       
   }
 
