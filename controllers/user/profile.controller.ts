@@ -32,10 +32,7 @@ async function handleUpdateUserProfile (req:Request, res:Response) {
             return 
         }
 
-        console.log(avatarPath)
-
         const result = await cloudinary.uploader.upload(avatarPath)
-        // console.log(result)
         const url = cloudinary.url(result.public_id)
         console.log(url)
 
