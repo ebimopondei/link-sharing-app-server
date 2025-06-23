@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize-typescript';
 import path from 'path';
 import { dbConn } from '../config/postgres-db';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const baseConfig = {
     database: process.env.DB,

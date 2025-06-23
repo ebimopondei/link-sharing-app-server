@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { getUserProfileDetails, updateUserProfile } from "../../database/sql";
 import { cloudinary } from "../../config/cloudinary";
 
+const cloudinaryUploadFolder = process.env.NODE_ENV === 'production' ? 'prod' : 'dev'
+
 const fs = require( 'fs')
 
 
@@ -32,9 +34,9 @@ async function handleUpdateUserProfile (req:Request, res:Response) {
             return 
         }
 
-        const result = await cloudinary.uploader.upload(avatarPath)
+        const result = await cloudinary.uploader.upload(avatarPath, { folder: cloudinaryUploadFolder })
         const url = cloudinary.url(result.public_id)
-        console.log(url)
+        
 
         const response = await updateUserProfile(user.id, data, result)
 
